@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เว็บสุ่มไอเทม</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 40px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.1);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .item-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .item-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .item-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            button {
+                padding: 12px 18px;
+                font-size: 16px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>ระบบสุ่มไอเทม</h1>
+    <button onclick="getRandomItem()">สุ่มไอเทม</button>
+
+    <div class="result-container" id="result-container">
+        <img id="item-image" class="item-image" src="" alt="ไอเทม">
+        <div id="item-text" class="item-text"></div>
+    </div>
+
+    <audio id="click-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+    <script>
+        const items = [
+            { th: "ดาบไฟ 🔥", en: "Fire Sword 🔥", image: "https://i.imgur.com/5FZSHfL.png", chance: 5 },
+            { th: "ปืนไรเฟิล 🎯", en: "Rifle 🎯", image: "https://i.imgur.com/63cZ2Zj.png", chance: 5 },
+            { th: "คฑาพลัง ⚡", en: "Magic Staff ⚡", image: "https://i.imgur.com/Iz5RQW0.png", chance: 5 },
+            { th: "ระเบิด 💣", en: "Grenade 💣", image: "https://i.imgur.com/pdTzw4J.png", chance: 5 },
+            { th: "ขวานพายุ 🌪️", en: "Storm Axe 🌪️", image: "https://i.imgur.com/NcqZm6O.png", chance: 4 },
+            { th: "ธนูพิษ 🏹", en: "Poison Bow 🏹", image: "https://i.imgur.com/Ydybmml.png", chance: 4 },
+            { th: "ดาบน้ำแข็ง ❄️", en: "Ice Sword ❄️", image: "https://i.imgur.com/8z8UzAf.png", chance: 3 },
+            { th: "หอกสายฟ้า ⚡", en: "Lightning Spear ⚡", image: "https://i.imgur.com/O8RzVhF.png", chance: 3 },
+            { th: "รวย 💰", en: "Rich 💰", image: "https://i.imgur.com/q7p1WrT.png", chance: 7 },
+            { th: "จน 💸", en: "Poor 💸", image: "https://i.imgur.com/oXDNmJb.png", chance: 7 },
+            { th: "ระดับกลาง 💼", en: "Middle Class 💼", image: "https://i.imgur.com/AwFZujp.png", chance: 6 },
+            { th: "รถสปอร์ต Ferrari 🏎️", en: "Ferrari Sports Car 🏎️", image: "https://i.imgur.com/FerrariCar.png", chance: 5 },
+            { th: "รถสปอร์ต Lamborghini 🚗", en: "Lamborghini Sports Car 🚗", image: "https://i.imgur.com/LamborghiniCar.png", chance: 5 },
+            { th: "รถสปอร์ต Porsche 🚘", en: "Porsche Sports Car 🚘", image: "https://i.imgur.com/PorscheCar.png", chance: 4 },
+            { th: "รถสปอร์ต McLaren 🚙", en: "McLaren Sports Car 🚙", image: "https://i.imgur.com/McLarenCar.png", chance: 4 },
+            { th: "รถสปอร์ต Bugatti 🏁", en: "Bugatti Sports Car 🏁", image: "https://i.imgur.com/BugattiCar.png", chance: 3 },
+            { th: "เครื่องบิน Airbus A380 ✈️", en: "Airbus A380 ✈️", image: "https://i.imgur.com/AirbusA380.png", chance: 3 },
+            { th: "เครื่องบิน Boeing 747 ✈️", en: "Boeing 747 ✈️", image: "https://i.imgur.com/Boeing747.png", chance: 3 },
+            { th: "เครื่องบิน F-22 Raptor ✈️", en: "F-22 Raptor ✈️", image: "https://i.imgur.com/F22Raptor.png", chance: 3 },
+            { th: "เครื่องบิน Concorde ✈️", en: "Concorde ✈️", image: "https://i.imgur.com/Concorde.png", chance: 3 },
+            { th: "เครื่องบิน Cessna 172 ✈️", en: "Cessna 172 ✈️", image: "https://i.imgur.com/Cessna172.png", chance: 3 },
+            { th: "เกลือ 🧂", en: "Salt 🧂", image: "https://i.imgur.com/0FqxlGG.png", chance: 80 }
+        ];
+
+        let currentLanguage = localStorage.getItem('language') || 'th';
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            location.reload();
+        }
+
+        function getRandomItem() {
+            let totalChance = 0;
+            for (const item of items) {
+                totalChance += item.chance;
+            }
+
+            const randomNum = Math.random() * totalChance;
+            let cumulativeChance = 0;
+
+            for (const item of items) {
+                cumulativeChance += item.chance;
+                if (randomNum < cumulativeChance) {
+                    return item;
+                }
+            }
+        }
+
+        function displayResult(item) {
+            const resultContainer = document.getElementById('result-container');
+            const itemImage = document.getElementById('item-image');
+            const itemText = document.getElementById('item-text');
+
+            itemImage.src = item.image;
+            itemText.textContent = item[currentLanguage];
+            resultContainer.style.display = 'block';
+        }
+
+        function getRandomItem() {
+            const result = getRandomItem();
+            document.getElementById("click-sound").play();
+            displayResult(result);
+        }
+    </script>
+
+</body>
+</html>
